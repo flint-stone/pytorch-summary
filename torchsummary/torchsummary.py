@@ -22,6 +22,7 @@ def summary_string(model, input_size, batch_size=-1, device=torch.device('cuda:0
 
     def register_hook(module):
         def hook(module, input, output):
+            print("adding hook to module " + str(module))
             class_name = str(module.__class__).split(".")[-1].split("'")[0]
             module_idx = len(summary)
 
@@ -49,6 +50,7 @@ def summary_string(model, input_size, batch_size=-1, device=torch.device('cuda:0
             not isinstance(module, nn.Sequential)
             and not isinstance(module, nn.ModuleList)
         ):
+            print("append forward hook Module " + str(module))
             hooks.append(module.register_forward_hook(hook))
 
     # multiple inputs to the network
@@ -75,8 +77,8 @@ def summary_string(model, input_size, batch_size=-1, device=torch.device('cuda:0
         h.remove()
 
     summary_str += "----------------------------------------------------------------" + "\n"
-    line_new = "{:>20}  {:>25} {:>15}".format(
-        "Layer (type)", "Output Shape", "Param #")
+    line_new = "{:>20} {:>25} {:>25} {:>15}".format(
+        "Layer (type)", "Input Shape", "Output Shape", "Param #")
     summary_str += line_new + "\n"
     summary_str += "================================================================" + "\n"
     total_params = 0
@@ -84,8 +86,9 @@ def summary_string(model, input_size, batch_size=-1, device=torch.device('cuda:0
     trainable_params = 0
     for layer in summary:
         # input_shape, output_shape, trainable, nb_params
-        line_new = "{:>20}  {:>25} {:>15}".format(
+        line_new = "{:>20} {:>25} {:>25} {:>15}".format(
             layer,
+            str(summary[layer]["input_shape"]),
             str(summary[layer]["output_shape"]),
             "{0:,}".format(summary[layer]["nb_params"]),
         )
