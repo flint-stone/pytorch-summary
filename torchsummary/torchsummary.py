@@ -78,18 +78,26 @@ def summary_string(model, input_size, batch_size=-1, device=torch.device('cuda:0
 
     summary_str += "----------------------------------------------------------------" + "\n"
     line_new = "{:>20} {:>25} {:>25} {:>15}".format(
-        "Layer (type)", "Input Shape", "Output Shape", "Param #")
+        "Layer (type)", "Input Shape", "Input #", "Output Shape", "Output #", "Param #")
     summary_str += line_new + "\n"
     summary_str += "================================================================" + "\n"
     total_params = 0
     total_output = 0
     trainable_params = 0
     for layer in summary:
+        input_size_layer = 1
+        output_size_layer = 1
+        for i_dim in summary[layer]["input_shape"]:
+            input_size_layer *= i_dim
+        for o_dim in summary[layer]["output_shape"]:
+            output_size_layer *= o_dim
         # input_shape, output_shape, trainable, nb_params
-        line_new = "{:>20} {:>25} {:>25} {:>15}".format(
+        line_new = "{:>20} {:>25} {:>15} {:>25} {:>15} {:>15}".format(
             layer,
             str(summary[layer]["input_shape"]),
+            -input_size_layer,
             str(summary[layer]["output_shape"]),
+            -output_size_layer,
             "{0:,}".format(summary[layer]["nb_params"]),
         )
         total_params += summary[layer]["nb_params"]
